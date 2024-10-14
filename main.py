@@ -6,6 +6,7 @@
 
 import os, pickle
 import googleapiclient.discovery
+from pyvidplayer2 import Video
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
@@ -17,7 +18,7 @@ def main():
     api_service_name = "youtube"
     api_version = "v3"
     
-    with open("Youtube API Key", "r") as f:
+    with open("Youtube API Key.txt", "r") as f:
         DEVELOPER_KEY = f.readlines()
     
     youtube = googleapiclient.discovery.build(
@@ -30,8 +31,11 @@ def main():
     )
     response = request.execute()["items"]
     for item in response:
-        print(item)
-    # with open("Response.txt", "w+") as f:
-        # pickle.dump(str(response).encode("utf-8"), f)    
+        for key in item: 
+            print(key, item[key])
+    with open("Response.txt", "wb") as f:
+        pickle.dump(str(response), f)
+
+    Video("https://www.youtube.com/watch?v=-EFmkxC8eBo", youtube=True).preview()
 if __name__ == "__main__":
     main()
