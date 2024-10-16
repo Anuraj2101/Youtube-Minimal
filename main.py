@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Sample Python code for youtube.channels.list
-# See instructions for running these code samples locally:
-# https://developers.google.com/explorer-help/code-samples#python
-
 import os, pickle
 import googleapiclient.discovery
 from pyvidplayer2 import Video
@@ -52,11 +46,7 @@ def menu(results):
     else:  
         return (results[selection - 1][next(iter(results[selection - 1]))])
 
-def main(search_string):
-    # Disable OAuthlib's HTTPS verification when running locally.
-    # *DO NOT* leave this option enabled in production.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "0"
-
+def google_api_call(search_string):
     api_service_name = "youtube"
     api_version = "v3"
     
@@ -68,20 +58,27 @@ def main(search_string):
 
     request = youtube.search().list(
         part="snippet",
-        maxResults=25,
+        maxResults=10,
         q = search_string
     )
 
     response = request.execute()["items"]
-    search_results = parse_results(response)
-    
+    return parse_results(response)
+
+def main():
+    # Disable OAuthlib's HTTPS verification when running locally.
+    # *DO NOT* leave this option enabled in production.
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "0"
+
+    search_string = search()
+
+    search_results=google_api_call(search_string)
+
     link=menu(search_results)
-    print(link)
 
     with open("Response.txt", "wb") as f:
-        pickle.dump(str(response), f)
+        pickle.dump(str(search_results), f)
 
     #Video(link, youtube=True).preview()
 if __name__ == "__main__":
-    query = search()
-    main(query)
+    main()
