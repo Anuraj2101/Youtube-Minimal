@@ -41,13 +41,14 @@ def menu(results, cursor):
             continue
         else:
             break
-    print(type(str(results[selection - 1]))) 
-    cursor.execute(f"INSERT INTO links ('{str(results[selection - 1])}', '{str(results[selection - 1][next(iter(results[selection - 1]))])}')")
+    title = list(results[selection - 1].keys())[0]
+    link = results[selection - 1][next(iter(results[selection - 1]))]
+    cursor.execute(f"INSERT INTO links VALUES ('{title}', '{link}');")
 
     if selection == 0:
         return None
     else:  
-        return (results[selection - 1][next(iter(results[selection - 1]))])
+        return link
 
 def google_api_call(search_string):
     api_service_name = "youtube"
