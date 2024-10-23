@@ -1,6 +1,6 @@
 import os, pickle, sqlite3
 import googleapiclient.discovery
-from pyvidplayer2 import Video
+# from pyvidplayer2 import Video
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
@@ -24,11 +24,27 @@ def clean_results(video_name, video_id):
     
     return {video_name:f"https://youtube.com/watch?v={video_id}"}
 
-def menu(results, cursor):
+def print_results(all_results):
     num = 0
-    for result in results:
+    for result in all_results:
         num +=1
         print(f"{num}: {next(iter(result))} Link:{result[next(iter(result))]}")
+
+def google_or_cache(results, cache, query):
+    
+    if cache == True:
+        print(f"Printing {len(results)} results from Cache...")
+        print_results(results)
+        data_select = input("Would you like to pull results from the Google API instead? (Y/n):")
+        if data_select == 'y':
+            print("Hit!")
+            results = google_api_call(query)
+            print_results(results)
+    
+    return results
+
+def menu(results, cursor, cache, query):
+    results=google_or_cache(results, cache, query)
     
     while True:
         try:
@@ -41,6 +57,7 @@ def menu(results, cursor):
             continue
         else:
             break
+
     title = list(results[selection - 1].keys())[0]
     link = results[selection - 1][next(iter(results[selection - 1]))]
     cursor.execute(f"INSERT INTO links VALUES ('{title}', '{link}');")
@@ -70,11 +87,12 @@ def google_api_call(search_string):
     return parse_results(response)
 
 def create_table(cursor):
+    print("Creating Table...")
     cursor.execute("CREATE TABLE IF NOT EXISTS links (title TEXT, link TEXT);") 
 
 def search_table(cursor, string):
     db_results = cursor.execute(f"SELECT * FROM links where title LIKE '%{string}%';").fetchall()
-    print(db_results)
+    print("DB:", db_results)
     return db_results
 
 def main():
@@ -88,15 +106,26 @@ def main():
 
     search_string = search()
     search_results = search_table(cursor, search_string)
+    
+    cache = False
     if search_results == []:
         print("Not found in cache!")
         search_results=google_api_call(search_string)
-
-    link=menu(search_results, cursor)
+    else:
+        new_dict = {}
+        cache = True
+        for tup in search_results:
+            new_dict[tup[0]] = tup[1]
+        search_results = [new_dict]
+ 
+    link=menu(search_results, cursor, cache, search_string)
     print(link)
-    with open("Response.txt", "wb") as f:
-        pickle.dump(str(search_results), f)
+    cursor.execute("delete from links where rowid not in (select min(rowid) from links group by title, link);")
+    conn.commit()
+    
+    
 
     #Video(link, youtube=True).preview()
 if __name__ == "__main__":
     main()
+    
