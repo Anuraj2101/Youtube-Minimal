@@ -1,18 +1,26 @@
-# -*- coding: utf-8 -*-
-
-# Sample Python code for youtube.channels.list
-# See instructions for running these code samples locally:
-# https://developers.google.com/explorer-help/code-samples#python
-
-import os, pickle
+import os, pickle, sqlite3
 import googleapiclient.discovery
-from pyvidplayer2 import Video
+# from pyvidplayer2 import Video
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
-def search():
-    query = str(input("Search: "))
-    return query
+def search(cursor):
+    search_string = str(input("Enter Your Search (0 to exit): "))
+    search_results = search_table(cursor, search_string)
+    
+    cache = False
+    if search_results == []:
+        print("Not found in cache!")
+        search_results=google_api_call(search_string)
+    else:
+        results_lst = []
+        cache = True
+        for tup in search_results:
+           results_lst.append({tup[0]: tup[1]})
+        search_results = results_lst
+
+    link = menu(search_results, cursor, cache, search_string)
+    return link 
 
 def parse_results(resp):
     cleaned_resp = []
@@ -29,15 +37,30 @@ def clean_results(video_name, video_id):
     
     return {video_name:f"https://youtube.com/watch?v={video_id}"}
 
-def menu(results):
+def print_results(all_results):
     num = 0
-    for result in results:
+    for result in all_results:
         num +=1
         print(f"{num}: {next(iter(result))} Link:{result[next(iter(result))]}")
+
+def google_or_cache(results, cache, query):
     
+    if cache == True:
+        print(f"Found {len(results)} results from Cache...")
+        data_select = input("Would you like to pull results from the Google API instead? (Y/n):")
+        if data_select == 'y':
+            print("Hit!")
+            results = google_api_call(query)
+            
+    print_results(results)
+    return results
+
+def menu(results, cursor, cache, query):
+    results=google_or_cache(results, cache, query)
+
     while True:
         try:
-            selection = int(input("Which Search Would You Like to Access? (0 to Exit): "))
+            selection = int(input("Which Result Would You Like to Access? (0 to Exit): "))
         except Exception as e:
             print(e)
             continue
@@ -45,18 +68,20 @@ def menu(results):
         if selection < 0 or selection > len(results):
             continue
         else:
-            break 
+            break
+
+    title = list(results[selection - 1].keys())[0]
+    link = results[selection - 1][next(iter(results[selection - 1]))]
+
+    if cache == False:
+        cursor.execute(f"INSERT INTO links VALUES ('{title}', '{link}');")
 
     if selection == 0:
         return None
     else:  
-        return (results[selection - 1][next(iter(results[selection - 1]))])
+        return link
 
-def main(search_string):
-    # Disable OAuthlib's HTTPS verification when running locally.
-    # *DO NOT* leave this option enabled in production.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "0"
-
+def google_api_call(search_string):
     api_service_name = "youtube"
     api_version = "v3"
     
@@ -68,20 +93,39 @@ def main(search_string):
 
     request = youtube.search().list(
         part="snippet",
-        maxResults=25,
+        maxResults=10,
         q = search_string
     )
 
     response = request.execute()["items"]
-    search_results = parse_results(response)
-    
-    link=menu(search_results)
-    print(link)
-
     with open("Response.txt", "wb") as f:
         pickle.dump(str(response), f)
+    
+    return parse_results(response)
 
+def create_table(cursor):
+    print("Creating Table...")
+    cursor.execute("CREATE TABLE IF NOT EXISTS links (title TEXT, link TEXT);") 
+
+def search_table(cursor, string):
+    db_results = cursor.execute(f"SELECT * FROM links where title LIKE '%{string}%';").fetchall()
+    return db_results
+
+def main():
+    # Disable OAuthlib's HTTPS verification when running locally.
+    # *DO NOT* leave this option enabled in production.
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "0"
+    
+    conn = sqlite3.connect("Cache.db")
+    cursor = conn.cursor()    
+    create_table(cursor)
+
+    link = search(cursor)
+    print(link)
+    cursor.execute("delete from links where rowid not in (select min(rowid) from links group by title, link);")
+    conn.commit()
+    
     #Video(link, youtube=True).preview()
 if __name__ == "__main__":
-    query = search()
-    main(query)
+    main()
+    
