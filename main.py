@@ -46,19 +46,18 @@ def print_results(all_results):
 def google_or_cache(results, cache, query):
     
     if cache == True:
-        print(f"Printing {len(results)} results from Cache...")
-        print_results(results)
+        print(f"Found {len(results)} results from Cache...")
         data_select = input("Would you like to pull results from the Google API instead? (Y/n):")
         if data_select == 'y':
             print("Hit!")
             results = google_api_call(query)
-            print_results(results)
-    print(results)
+            
+    print_results(results)
     return results
 
 def menu(results, cursor, cache, query):
     results=google_or_cache(results, cache, query)
-    
+
     while True:
         try:
             selection = int(input("Which Result Would You Like to Access? (0 to Exit): "))
@@ -99,6 +98,9 @@ def google_api_call(search_string):
     )
 
     response = request.execute()["items"]
+    with open("Response.txt", "wb") as f:
+        pickle.dump(str(response), f)
+    
     return parse_results(response)
 
 def create_table(cursor):
@@ -123,8 +125,6 @@ def main():
     cursor.execute("delete from links where rowid not in (select min(rowid) from links group by title, link);")
     conn.commit()
     
-    
-
     #Video(link, youtube=True).preview()
 if __name__ == "__main__":
     main()
