@@ -4,10 +4,23 @@ import googleapiclient.discovery
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
-def search():
-    query = str(input("Enter Your Search (0 to exit): "))
+def search(cursor):
+    search_string = str(input("Enter Your Search (0 to exit): "))
+    search_results = search_table(cursor, search_string)
     
-    return query
+    cache = False
+    if search_results == []:
+        print("Not found in cache!")
+        search_results=google_api_call(search_string)
+    else:
+        results_lst = []
+        cache = True
+        for tup in search_results:
+           results_lst.append({tup[0]: tup[1]})
+        search_results = results_lst
+
+    link = menu(search_results, cursor, cache, search_string)
+    return link 
 
 def parse_results(resp):
     cleaned_resp = []
@@ -40,7 +53,7 @@ def google_or_cache(results, cache, query):
             print("Hit!")
             results = google_api_call(query)
             print_results(results)
-    
+    print(results)
     return results
 
 def menu(results, cursor, cache, query):
@@ -60,7 +73,9 @@ def menu(results, cursor, cache, query):
 
     title = list(results[selection - 1].keys())[0]
     link = results[selection - 1][next(iter(results[selection - 1]))]
-    cursor.execute(f"INSERT INTO links VALUES ('{title}', '{link}');")
+
+    if cache == False:
+        cursor.execute(f"INSERT INTO links VALUES ('{title}', '{link}');")
 
     if selection == 0:
         return None
@@ -92,7 +107,6 @@ def create_table(cursor):
 
 def search_table(cursor, string):
     db_results = cursor.execute(f"SELECT * FROM links where title LIKE '%{string}%';").fetchall()
-    print("DB:", db_results)
     return db_results
 
 def main():
@@ -104,21 +118,7 @@ def main():
     cursor = conn.cursor()    
     create_table(cursor)
 
-    search_string = search()
-    search_results = search_table(cursor, search_string)
-    
-    cache = False
-    if search_results == []:
-        print("Not found in cache!")
-        search_results=google_api_call(search_string)
-    else:
-        new_dict = {}
-        cache = True
-        for tup in search_results:
-            new_dict[tup[0]] = tup[1]
-        search_results = [new_dict]
- 
-    link=menu(search_results, cursor, cache, search_string)
+    link = search(cursor)
     print(link)
     cursor.execute("delete from links where rowid not in (select min(rowid) from links group by title, link);")
     conn.commit()
