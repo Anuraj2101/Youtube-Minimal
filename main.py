@@ -1,6 +1,6 @@
 import os, pickle, sqlite3
 import googleapiclient.discovery
-# from pyvidplayer2 import Video
+from pyvidplayer2 import Video
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
@@ -29,6 +29,8 @@ def parse_results(resp):
             continue
         vid_id = item["id"]["videoId"]
         vid_name = item["snippet"]["title"]
+        channel_id = item["snippet"]["channelTitle"]
+        date_pub = item["snippet"]["publishTime"]
         cleaned_resp.append(clean_results(str(vid_name).replace("&quot;", "\""), vid_id))
 
     return cleaned_resp
@@ -92,9 +94,10 @@ def google_api_call(search_string):
         api_service_name, api_version, developerKey=DEVELOPER_KEY)
 
     request = youtube.search().list(
-        part="snippet",
+        part='snippet',
         maxResults=10,
-        q = search_string
+        q = search_string,
+        type = 'video'
     )
 
     response = request.execute()["items"]
@@ -125,7 +128,7 @@ def main():
     cursor.execute("delete from links where rowid not in (select min(rowid) from links group by title, link);")
     conn.commit()
     
-    #Video(link, youtube=True).preview()
+    Video(link, youtube=True).preview()
 if __name__ == "__main__":
     main()
     
