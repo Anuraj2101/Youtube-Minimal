@@ -1,6 +1,6 @@
 import os, pickle, sqlite3
 import googleapiclient.discovery
-from pyvidplayer2 import Video
+# from pyvidplayer2 import Video
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
@@ -94,10 +94,12 @@ def google_api_call(search_string):
         api_service_name, api_version, developerKey=DEVELOPER_KEY)
 
     request = youtube.search().list(
+
         part='snippet',
         maxResults=10,
         q = search_string,
         type = 'video'
+
     )
 
     response = request.execute()["items"]
@@ -129,6 +131,7 @@ def main():
     conn.commit()
     
     Video(link, youtube=True).preview()
+
 if __name__ == "__main__":
     main()
     
