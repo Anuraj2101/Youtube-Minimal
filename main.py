@@ -1,6 +1,6 @@
 import os, pickle, sqlite3
 import googleapiclient.discovery
-# from pyvidplayer2 import Video
+from pyvidplayer2 import Video
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
