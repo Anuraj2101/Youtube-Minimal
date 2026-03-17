@@ -5,7 +5,7 @@ AzuriteConfig
 *.cer
 *.pfx
 *.pem
-
+!requirements.txt
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
