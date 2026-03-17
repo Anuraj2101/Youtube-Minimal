@@ -70,6 +70,6 @@ jobs:
         id: deploy-to-function
         with:
           app-name: 'youtube-minimal'
-          slot-name: 'Development'
+          slot-name: 'dev'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F6FEDD92870B42638334C733AE4B6AA7 }}
