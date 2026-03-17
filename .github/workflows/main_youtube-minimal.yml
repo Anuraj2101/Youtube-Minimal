@@ -72,4 +72,4 @@ jobs:
           app-name: 'youtube-minimal'
           #slot-name: 'dev'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F6FEDD92870B42638334C733AE4B6AA7 }}
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_DEV }}
