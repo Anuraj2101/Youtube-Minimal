@@ -3,6 +3,7 @@ import googleapiclient.discovery
 
 from pyvidplayer2 import Video
 
+
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
 def search(cursor):
@@ -122,7 +123,7 @@ def main():
     # *DO NOT* leave this option enabled in production.
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "0"
     
-    conn = sqlite3.connect("Cache.db")
+    conn = sqlite3.connect("../Cache.db")
     cursor = conn.cursor()    
     create_table(cursor)
 
