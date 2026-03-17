@@ -72,4 +72,6 @@ jobs:
           app-name: 'youtube-minimal'
           #slot-name: 'dev'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          sku: flexconsumption
+          remote-build: true
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_DEV }}
