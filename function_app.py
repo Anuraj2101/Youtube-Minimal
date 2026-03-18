@@ -33,13 +33,24 @@ def search_videos(req: func.HttpRequest) -> func.HttpResponse:
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "0"
     search_string = req.params.get('search')
 
-    account_name = str(os.environ.get("ACCOUNT_NAME"))
-    account_key = str(os.environ.get("ACCOUNT_KEY"))
-    credential = AzureNamedKeyCredential(account_name, account_key)
+    # account_name, account_key, credential, service_client = "", "", "", ""
+    # account_name = str(os.environ.get("ACCOUNT_NAME"))
+    # account_key = str(os.environ.get("ACCOUNT_KEY"))
+    # credential = AzureNamedKeyCredential(account_name, account_key)
+    # service_client = TableServiceClient(endpoint=f"https://localhost:10002/devstoreaccount1", credential=credential)
+
+    if str(os.environ.get("ENVIRONMENT")) == "local":
+        account_name = str(os.environ.get("ACCOUNT_NAME"))
+        account_key = str(os.environ.get("ACCOUNT_KEY"))
+        credential = AzureNamedKeyCredential(account_name, account_key)
+        service_client = TableServiceClient(endpoint=f"https://localhost:10002/devstoreaccount1", credential=credential)
+    elif str(os.environ.get("ENVIRONMENT")) == "dev":
+        connection_string = str(os.environ.get("AzureWebJobsStorage"))
+        service_client = TableServiceClient.from_connection_string(conn_str=connection_string)
     table_name = "linktable"
     # connection_string = "DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=https://127.0.0.1:10002/devstoreaccount1;"
     # service_client = TableServiceClient.from_connection_string(conn_str=connection_string)
-    service_client = TableServiceClient(endpoint=f"https://127.0.0.1:10002/devstoreaccount1", credential=credential)
+
 
 
     try:
