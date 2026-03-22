@@ -8,9 +8,12 @@ def google_api_call(search_string) -> list:
     
     # with open("Youtube API Key.txt", "r") as f:
     #     DEVELOPER_KEY = f.readlines()
-    with open(str(os.environ.get("YOUTUBE_API_KEY")), "r") as f:
-        DEVELOPER_KEY = f.readlines()
-        
+    if str(os.environ.get("ENVIRONMENT")) == "dev":
+        DEVELOPER_KEY = str(os.environ.get("YOUTUBE_API_KEY"))
+    elif str(os.environ.get("ENVIRONMENT")) == "local": 
+        with open(str(os.environ.get("YOUTUBE_API_KEY")), "r") as f:
+            DEVELOPER_KEY = f.readlines()
+
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, developerKey=DEVELOPER_KEY)
 
