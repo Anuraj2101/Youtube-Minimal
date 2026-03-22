@@ -1,4 +1,4 @@
-import googleapiclient.discovery, pickle
+import googleapiclient.discovery, pickle, os
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
@@ -6,9 +6,11 @@ def google_api_call(search_string) -> list:
     api_service_name = "youtube"
     api_version = "v3"
     
-    with open("Youtube API Key.txt", "r") as f:
+    # with open("Youtube API Key.txt", "r") as f:
+    #     DEVELOPER_KEY = f.readlines()
+    with open(str(os.environ.get("YOUTUBE_API_KEY")), "r") as f:
         DEVELOPER_KEY = f.readlines()
-    
+        
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, developerKey=DEVELOPER_KEY)
 
