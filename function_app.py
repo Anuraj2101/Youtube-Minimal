@@ -7,6 +7,7 @@ import source_code.search as search
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
+@app.function_name(name="http_trigger")
 @app.route(route="http_trigger")
 def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
@@ -27,7 +28,8 @@ def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
              "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
              status_code=200
         )
-    
+
+@app.function_name(name="search")
 @app.route(route="search")
 def search_videos(req: func.HttpRequest) -> func.HttpResponse:
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "0"
