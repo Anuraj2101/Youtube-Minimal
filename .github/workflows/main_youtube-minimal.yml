@@ -81,3 +81,4 @@ jobs:
           app-name: 'test-function-2'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           sku: flexconsumption
+          remote-build: true
