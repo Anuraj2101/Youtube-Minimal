@@ -28,6 +28,7 @@ jobs:
     - name: deploy
       uses: azure/arm-deploy@v1
       with:
+        scope: subscription
         resourceGroupName: ${{ secrets.AZURE_RG_NAME }}
         template: ./infrastructure/main.bicep
         failOnStdErr: false
