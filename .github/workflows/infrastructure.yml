@@ -30,5 +30,4 @@ jobs:
       with:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         template: ./infrastructure/main.bicep
-        parameters: 'storagePrefix=mystore storageSKU=Standard_LRS'
         failOnStdErr: true
