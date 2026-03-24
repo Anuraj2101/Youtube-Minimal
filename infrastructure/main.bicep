@@ -12,6 +12,7 @@ resource newRG 'Microsoft.Resources/resourceGroups@2025-04-01' = {
 
 module storageAcct './storage.bicep' = {
   name: 'storageModule'
+  scope: newRG
   params: {
     storageName: storageName
     storageLocation: location
