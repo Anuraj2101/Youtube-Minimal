@@ -1,1 +1,1 @@
-An wrapper for Youtube API, stripping away ads, shorts and recommendations.
+A wrapper for Youtube API, stripping away ads, shorts and recommendations.
