@@ -18,3 +18,11 @@ module storageAcct './storage.bicep' = {
     storageLocation: newRG.location
   }
 }
+
+module vNet './vnet.bicep' = {
+  name: 'vNetModule'
+  scope: newRG
+  params: {
+    location: newRG.location
+  }
+}
