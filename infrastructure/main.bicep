@@ -10,19 +10,22 @@ resource newRG 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   location: region
 }
 
+module vNet './vnet.bicep' = {
+  name: 'vNetModule'
+  scope: newRG
+  params: {
+    location: newRG.location
+  }
+}
+
 module storageAcct './storage.bicep' = {
   name: 'storageModule'
   scope: newRG
   params: {
     storageName: storageName
     storageLocation: newRG.location
-  }
-}
-
-module vNet './vnet.bicep' = {
-  name: 'vNetModule'
-  scope: newRG
-  params: {
-    location: newRG.location
+    vNetId: vNet.outputs.virtualNetworkId
+    subnetPrivateEndpointId: vNet.outputs.subnetPrivateEndpointId
+    subnetPrivateEndpointName: vNet.outputs.subnetPrivateEndpointName
   }
 }
